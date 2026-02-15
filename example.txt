@@ -1,0 +1,23 @@
+/title { My favourite quotes }
+/# { My favourite quotes }
+
+/p {
+    A man convinced against his will,
+    Is of the same opinion still. -- /i { Dale Carnegie }
+}
+
+/p {
+    A wise old owl lived in an oak,
+    The more he saw the less he spoke,
+    The less he spoke the more he heard.
+    Why aren't we all like that wise old bird? -- /i {John Davison Rockfeller}
+}
+
+Ignore this please for the love of god
+
+/p {
+    1 случай -- случайность;
+    2 случай -- совпадение;
+    3 случай -- закономерность;
+    4 случай -- система -- /i {unknown author}
+}

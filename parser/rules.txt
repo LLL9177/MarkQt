@@ -1,0 +1,13 @@
+text: /t {}
+headers:
+    h1: /#
+    h2: /2#
+    h3: /3#
+
+paragraph: /p {}
+
+window name: /title {}
+
+bold: /b {}
+italic: /i {}
+underlined text: /ult {}
