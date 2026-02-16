@@ -59,6 +59,19 @@ This line is ignored...
 So is this line
 ```
 
+### Can't start different blocks in one line
+If you write something like this:
+```markup
+/t {/i {this text is italic}}
+```
+It wouldn't work. For it to be parsed and not ignored, you need to do this:
+```markup
+/t {
+    /i {This text is italic}
+}
+```
+You might've already guessed that this issue exists **because I'm lazy**. And i don't think i'll be fixing that in a closer future.
+
 ### Running the Parser
 
 ```python

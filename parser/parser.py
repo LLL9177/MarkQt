@@ -94,7 +94,7 @@ def convert_blocks(blocks, keywords):
     ret = ''
     is_current_child = False
     j=0
-    opened_block = None
+    opened_blocks = []
 
     for i in range(len(keywords)):
         kw = keywords[i].strip()
@@ -112,15 +112,15 @@ def convert_blocks(blocks, keywords):
                     ret += convert_block(block, kw)
         elif next_kw is not None and kw != '}':
             ret += open_block(block, kw)
-            opened_block = kw
+            opened_blocks.append(kw)
         
         if kw in types.keys():
             is_current_child = False
-        elif kw == '}' and opened_block:
-            typed_kw = get_type(opened_block)
+        elif kw == '}' and len(opened_blocks) > 0:
+            typed_kw = get_type(opened_blocks[-1])
             ret += f"</{typed_kw}>"
             is_current_child = True
-            opened_block = None
+            opened_blocks.pop(-1)
 
     return ret
 
