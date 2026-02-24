@@ -1,7 +1,0 @@
-/p {
-    Hello from idk.
-}
-
-/t {
-    I guess hello from /b{Tokyo.}
-}

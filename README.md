@@ -1,47 +1,38 @@
 # MarkQt
 
-A lightweight markup parser that converts a custom markup syntax into HTML. MarkQt provides a simple and intuitive way to define document structure with tags like headers, paragraphs, and text formatting.
+MarkQt is a small, focused markup parser that converts a simple bracket-based custom markup into HTML. It's intended as a lightweight way to write structured documents with headers, paragraphs and inline formatting, and to render them in a minimal Qt renderer.
 
-## Features
+**Key points**
+- Simple, human-readable markup
+- Produces HTML output suitable for display in a Qt text widget
+- Supports basic inline formatting and nested blocks
 
-- **Custom Markup Syntax**: Simple, readable syntax for defining document structure
-- **HTML Output**: Converts markup files directly to HTML format
-- **Text Formatting**: Support for bold, italic, and underlined text
-- **Headers**: Multiple header levels (h1, h2, h3)
-- **Paragraphs**: Block-level paragraph support
-- **Flexible Nesting**: Allows nested formatting within content blocks
-- Will add renderer later
+## Supported tags
 
-## Syntax
+The parser recognizes the following tags (tag → output):
 
-MarkQt uses a bracket-based syntax to define content blocks:
+- `/#` → `<h1>`
+- `/#2` → `<h2>`
+- `/#3` → `<h3>`
+- `/p` → `<p>`
+- `/b` → `<b>`
+- `/i` → `<i>`
+- `/ult` → `<u>`
+- `/t` → plain text
+- `/Title` → special: sets application window title (handled by `components`)
 
-```
-/tag { content }
-```
+Line breaks inside blocks are converted to `<br>`.
 
-### Supported Tags
+## Syntax rules
 
-| Tag | Output | Purpose |
-|-----|--------|---------|
-| `/#` | `<h1>` | Header Level 1 |
-| `/#2` | `<h2>` | Header Level 2 |
-| `/#3` | `<h3>` | Header Level 3 |
-| `/p` | `<p>` | Paragraph |
-| `/b` | `<b>` | Bold text |
-| `/i` | `<i>` | Italic text |
-| `/ult` | `<u>` | Underlined text |
-| `/t` | `<text>` | Plain text |
-| `/Title` | Special | Window title (not an HTML tag) |
+- Blocks use the form: `/tag { content }` and content must be placed inside the braces.
+- Text outside of any block is ignored by the parser.
+- Do not start multiple block openings on the same line; nested blocks should be started on their own lines inside the parent block.
 
-## Usage
-
-### Basic Example
-
-Create a `.txt` file with MarkQt syntax:
+Example:
 
 ```
-/title { My Document }
+/Title { My Document }
 /# { Welcome }
 
 /p {
@@ -49,62 +40,57 @@ Create a `.txt` file with MarkQt syntax:
 }
 ```
 
-### Text must be always wrapped in a tag
-If you write anything outside of scopes (blocks if you like), it will be **ignored by the parser**.
+## Running
 
-For example:
-```markup
-This line is ignored...
-/t {Hello world}
-So is this line
+Install Python requirements (if needed):
+
+```bash
+python -m pip install -r Markqt/requirements.txt
 ```
 
-### Can't start different blocks in one line
-If you write something like this:
-```markup
-/t {/i {this text is italic}}
-```
-It wouldn't work. For it to be parsed and not ignored, you need to do this:
-```markup
-/t {
-    /i {This text is italic}
-}
-```
-You might've already guessed that this issue exists **because I'm lazy**. And i don't think i'll be fixing that in a closer future.
+Run the renderer which uses Qt to display the parsed HTML:
 
-### Running the Parser
+```bash
+python Markqt/renderer.py
+```
+
+Or parse a file directly from Python:
 
 ```python
-from parser.parser import parser
-
-# Parse a file and get HTML output
-html = parser("./example.txt")
+from MarkQt.parser.parser import parser
+html = parser("./MarkQt/example.txt")
 print(html)
 ```
 
-Or use the renderer:
-
-```bash
-python renderer.py
+or create your own file that will call renderer:
+```python
+from MarkQt.renderer import render
+render()
 ```
 
-## Project Structure
+## Renderer and components
+
+- `renderer.py` demonstrates loading `example.txt`, parsing it and showing the resulting HTML in a `QTextBrowser`.
+- Custom behaviors (non-HTML tags) can be implemented as components. See `components.py` and `env.json`:
+  - `components.py` maps component names (like `Title`) to functions that receive the block content and the Qt widget. Note that your function must contain args and kwargs as parameters if you don't want to get an error.
+  - `env.json` lists active components by name.
+
+## Project layout
 
 ```
 MarkQt/
 ├── parser/
 │   ├── parser.py       # Main parsing logic
-│   ├── rules.txt       # Tag definitions reference
+│   ├── rules.txt       # Tag reference (informational)
 │   └── __init__.py
-├── renderer.py         # Example renderer script
-├── example.txt         # Sample markup file
-└── README.md          # This file
+├── components.py       # Example component handlers
+├── renderer.py         # Minimal Qt renderer demo
+├── example.txt         # Sample markup
+├── env.json            # Which components are enabled
+└── README.md
 ```
 
-## Example
+## Notes and limitations
 
-See `example.txt` for a complete example with quotes formatted in various ways, including nested formatting.
-
-## License
-
-This project is open source.
+- The parser expects well-formed blocks and will raise if scopes are not closed.
+- The current syntax has some restrictions (e.g. starting multiple blocks on one line). These are documented above.
