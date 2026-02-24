@@ -1,45 +1,36 @@
 from .parser.parser import parser, parse_keywords, get_blocks
 from PySide6.QtWidgets import QApplication, QTextBrowser
-from .components import components
-import json
+from .components import add_custom_components
 import sys
-from pathlib import Path
 
-def render(file_name):
-    BASE_DIR = Path(__file__).resolve().parent
-    ENV_PATH = BASE_DIR / "env.json"
-
-    def load_env(file_name):
-        with open(file_name) as f:
-            file = f.read()
-            return json.loads(file)
+def render(file_name, custom_components={}):
+    components = add_custom_components(custom_components)
+    print(components)
 
     def get_initial_text():
         with open(file_name) as f:
             return f.read()
         
     def find_components(blocks, keywords):
-        env = load_env(ENV_PATH)
-        components = []
-        components_blocks = []
+        kws_ret = []
+        blocks_ret = []
         j = 0
-        for kw in keywords:
-            kw = kw[1:].strip()
-            if kw in env["components"]:
-                if kw != '}':
-                    block = blocks[j]
-                    j += 1   # advance ONLY when block is consumed
-                else:
-                    block = None
+        for i in range(len(keywords)):
+            kw = keywords[i][1:].strip()
+            if keywords[i] == '}': 
+                continue
+            if kw not in components.keys():
+                j += 1
+                continue
+            kws_ret.append(kw)
+            blocks_ret.append(blocks[j])
+            j += 1
 
-                components.append(kw)
-                components_blocks.append(block)
-        
-        return components, components_blocks
+        return kws_ret, blocks_ret
 
-    def execute_components(comps, children, *args, **kwargs):
+    def execute_components(comps, children, browser, *args, **kwargs):
         for i in range(len(comps)):
-            components[comps[i]](children[i], *args, **kwargs)
+            components[comps[i]](children[i], browser, *args, **kwargs)
         
         return 0
 
@@ -52,6 +43,7 @@ def render(file_name):
     comps, children = find_components(blocks, keywords)
 
     app = QApplication(sys.argv)
+    print(comps, children)
 
     browser = QTextBrowser()
     browser.resize(800, 600)

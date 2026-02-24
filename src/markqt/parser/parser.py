@@ -14,6 +14,10 @@ types = {
     '\\n': "<br>"
 }
 
+def add_custom_componentsB(components):
+    global types
+    types.update(components)
+
 def parse_keywords(lines):
     keywords = [] # Each keyword represents a line
     for l in lines:
