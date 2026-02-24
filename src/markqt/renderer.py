@@ -1,17 +1,17 @@
-from parser.parser import parser, parse_keywords, get_blocks
-from PySide6.QtWidgets import QApplication, QTextBrowser, QMainWindow
-from components import components
+from .parser.parser import parser, parse_keywords, get_blocks
+from PySide6.QtWidgets import QApplication, QTextBrowser
+from .components import components
 import json
 import sys
 
-def render():
+def render(file_name):
     def load_env(file_name):
         with open(file_name) as f:
             file = f.read()
             return json.loads(file)
 
     def get_initial_text():
-        with open("./example.txt") as f:
+        with open(file_name) as f:
             return f.read()
         
     def find_components(blocks, keywords):
@@ -39,7 +39,7 @@ def render():
         
         return 0
 
-    parsed_text = parser("./example.txt")
+    parsed_text = parser(file_name)
     initial_text = get_initial_text()
 
     lines = initial_text.split('\n')
