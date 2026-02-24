@@ -3,8 +3,12 @@ from PySide6.QtWidgets import QApplication, QTextBrowser
 from .components import components
 import json
 import sys
+from pathlib import Path
 
 def render(file_name):
+    BASE_DIR = Path(__file__).resolve().parent
+    ENV_PATH = BASE_DIR / "env.json"
+
     def load_env(file_name):
         with open(file_name) as f:
             file = f.read()
@@ -15,7 +19,7 @@ def render(file_name):
             return f.read()
         
     def find_components(blocks, keywords):
-        env = load_env("./env.json")
+        env = load_env(ENV_PATH)
         components = []
         components_blocks = []
         j = 0
