@@ -32,7 +32,7 @@ MarkQt uses a bracket-based syntax to define content blocks:
 | `/i` | `<i>` | Italic text |
 | `/ult` | `<u>` | Underlined text |
 | `/t` | `<text>` | Plain text |
-| `/title` | Special | Window title (not an HTML tag) |
+| `/Title` | Special | Window title (not an HTML tag) |
 
 ## Usage
 

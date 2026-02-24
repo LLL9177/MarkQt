@@ -10,7 +10,8 @@ types = {
     "/b": "b",
     "/i": "i",
     "/ult": "u",
-    "/title": "Title" # This is not a real html tag. Specifies window name
+    "/Title": "Title", # This is not a real html tag. Specifies window name
+    '\\n': "<br>"
 }
 
 def parse_keywords(lines):
@@ -82,13 +83,19 @@ def get_blocks(text):
 def get_type(kw):
     return types[kw.strip()]
 
+def render_block_text(block):
+    lines = block.splitlines()
+    return "<br>\n".join(line.rstrip() for line in lines if line.strip() != "")
+
 def convert_block(block, kw):
     kw = get_type(kw)
-    return f"<{kw}>{block}\n</{kw}>"
+    block = render_block_text(block)
+    return f"<{kw}>\n{block}\n</{kw}>"
 
 def open_block(block, kw):
     kw = get_type(kw)
-    return f"<{kw}>{block}"
+    block = render_block_text(block)
+    return f"<{kw}>\n{block}"
 
 def convert_blocks(blocks, keywords):
     ret = ''
@@ -127,7 +134,6 @@ def convert_blocks(blocks, keywords):
 
 def parser(file_location):
     ret = ''
-    parts = []
     with open(file_location) as f:
         text = f.read()
         lines = text.split('\n')

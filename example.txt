@@ -1,4 +1,4 @@
-/title { My favourite quotes }
+/Title { My favourite quotes }
 /# { My favourite quotes }
 
 /p {
