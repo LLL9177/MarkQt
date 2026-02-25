@@ -67,7 +67,8 @@ render("./filename.txt")
 If you want, you can add custom components (I know i stole it from react). Simply pass your object with the components as a second parameter to a `render` function:
 
 ```python
-def print_hello(*args, **kwargs)
+def print_hello(*args, **kwargs):
+  print("hello world")
 
 render("./filename.txt", {
   "PrintHello": print_hello
