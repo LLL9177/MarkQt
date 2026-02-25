@@ -88,6 +88,18 @@ def my_function(children, browser, *args, **kwargs):
 
 As you may've guessed, children is what you put between the brackets
 
+You can't do that btw:
+```
+/t {
+  1
+  /t {2}
+  3
+}
+```
+
+Also, unlike the built-in Title component, Whatever you put into your custom components as children, it will be displayed.
+I don't even know why Title component doesn't display anything bro
+
 ## Project layout
 
 ```

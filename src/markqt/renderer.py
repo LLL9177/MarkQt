@@ -5,7 +5,6 @@ import sys
 
 def render(file_name, custom_components={}):
     components = add_custom_components(custom_components)
-    print(components)
 
     def get_initial_text():
         with open(file_name) as f:
@@ -43,7 +42,6 @@ def render(file_name, custom_components={}):
     comps, children = find_components(blocks, keywords)
 
     app = QApplication(sys.argv)
-    print(comps, children)
 
     browser = QTextBrowser()
     browser.resize(800, 600)
