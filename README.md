@@ -107,7 +107,7 @@ MarkQt/
 ## Limitations & notes
 
 - The parser expects well-formed blocks; unclosed scopes will raise errors.
-- Nested block syntax has restrictions (see examples) — place nested block openings on their own lines.
+- Nested block syntax has restrictions (see examples)
 
 ## License
 
