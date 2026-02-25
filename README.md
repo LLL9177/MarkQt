@@ -99,6 +99,7 @@ You can't do that btw:
 
 Also, unlike the built-in Title component, Whatever you put into your custom components as children, it will be displayed.
 I don't even know why Title component doesn't display anything bro
+It's not a bug. It's a feature.
 
 ## Project layout
 
