@@ -46,6 +46,94 @@ def strip_keywords(text):
 
     return ret
 
+
+def _sorted_type_keys():
+    return sorted(types.keys(), key=len, reverse=True)
+
+
+def _parse_recursive(text, pos=0, end_char=None):
+    n = len(text)
+    parts = []
+    keys = _sorted_type_keys()
+
+    while pos < n:
+        if end_char is not None and text[pos] == end_char:
+            return ''.join(parts), pos + 1
+
+        matched = False
+
+        for key in keys:
+            if text.startswith(key, pos):
+                # handle explicit newline token
+                if key == '\\n':
+                    parts.append(types[key])
+                    pos += len(key)
+                    matched = True
+                    break
+
+                next_pos = pos + len(key)
+                # only treat as a tag when followed by an opening brace,
+                # allowing optional whitespace between key and '{'
+                look_pos = next_pos
+                while look_pos < n and text[look_pos].isspace():
+                    look_pos += 1
+                if look_pos < n and text[look_pos] == '{':
+                    pos = look_pos + 1  # skip key, optional spaces and '{'
+                    inner, pos = _parse_recursive(text, pos, '}')
+                    tag = types[key]
+                    # embed inner content without adding extra newlines
+                    parts.append(f"<{tag}>{inner}</{tag}>")
+                    matched = True
+                    break
+
+        if matched:
+            continue
+
+        # no special token matched; copy character
+        parts.append(text[pos])
+        pos += 1
+
+    if end_char is not None:
+        raise Exception("Forgot to close a scope")
+
+    return ''.join(parts), pos
+
+
+def parse_text_to_html(text):
+    out, _ = _parse_recursive(text, 0, None)
+
+    def _convert_newlines_outside_tags(s):
+        res = []
+        cur = []
+        inside_tag = False
+
+        for ch in s:
+            if ch == '<':
+                inside_tag = True
+                cur.append(ch)
+            elif ch == '>':
+                inside_tag = False
+                cur.append(ch)
+            elif ch == '\n':
+                if inside_tag:
+                    cur.append(ch)
+                else:
+                    line = ''.join(cur)
+                    if line.strip() != '':
+                        res.append(line.rstrip())
+                        res.append("<br>\n")
+                    # reset current buffer (drop blank lines)
+                    cur = []
+            else:
+                cur.append(ch)
+
+        if cur:
+            res.append(''.join(cur))
+
+        return ''.join(res)
+
+    return _convert_newlines_outside_tags(out)
+
 def get_blocks(text):
     blocks = []
     scopes = {}
@@ -140,9 +228,6 @@ def parser(file_location):
     ret = ''
     with open(file_location) as f:
         text = f.read()
-        lines = text.split('\n')
-        keywords = parse_keywords(lines)
-        blocks = get_blocks(text)
-        ret = convert_blocks(blocks, keywords)
+        ret = parse_text_to_html(text)
 
     return ret
