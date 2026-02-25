@@ -27,8 +27,6 @@ Line breaks inside blocks are converted to `<br>`.
 ## Syntax rules
 
 - Blocks use the form: `/tag { content }` and the content must be inside the braces.
-- Text outside of any block is ignored.
-- Avoid starting multiple block openings on the same line; nested blocks should begin on their own lines inside the parent block.
 
 Example:
 

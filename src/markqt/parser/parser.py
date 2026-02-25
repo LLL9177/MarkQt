@@ -81,7 +81,17 @@ def _parse_recursive(text, pos=0, end_char=None):
                     pos = look_pos + 1  # skip key, optional spaces and '{'
                     inner, pos = _parse_recursive(text, pos, '}')
                     tag = types[key]
-                    # embed inner content without adding extra newlines
+                    # trim a single leading newline + indentation and a single trailing newline + indentation
+                    if inner.startswith('\n'):
+                        i = 1
+                        while i < len(inner) and inner[i] in (' ', '\t', '\r'):
+                            i += 1
+                        inner = inner[i:]
+                    if inner.endswith('\n'):
+                        j = len(inner) - 1
+                        while j - 1 >= 0 and inner[j-1] in (' ', '\t', '\r'):
+                            j -= 1
+                        inner = inner[:j]
                     parts.append(f"<{tag}>{inner}</{tag}>")
                     matched = True
                     break
@@ -106,26 +116,46 @@ def parse_text_to_html(text):
         res = []
         cur = []
         inside_tag = False
+        i = 0
+        n = len(s)
 
-        for ch in s:
+        while i < n:
+            ch = s[i]
             if ch == '<':
                 inside_tag = True
                 cur.append(ch)
+                i += 1
             elif ch == '>':
                 inside_tag = False
                 cur.append(ch)
+                i += 1
             elif ch == '\n':
                 if inside_tag:
                     cur.append(ch)
+                    i += 1
                 else:
+                    # look ahead: if next non-space char is '<', treat this newline as formatting
+                    j = i + 1
+                    while j < n and s[j] in (' ', '\t', '\r'):
+                        j += 1
+
+                    if j < n and s[j] == '<':
+                        # drop the newline and any indentation spaces
+                        i = j
+                        # also trim trailing spaces from current buffer
+                        while cur and cur[-1].isspace():
+                            cur.pop()
+                        continue
+
                     line = ''.join(cur)
                     if line.strip() != '':
                         res.append(line.rstrip())
                         res.append("<br>\n")
-                    # reset current buffer (drop blank lines)
                     cur = []
+                    i += 1
             else:
                 cur.append(ch)
+                i += 1
 
         if cur:
             res.append(''.join(cur))
@@ -138,7 +168,6 @@ def get_blocks(text):
     blocks = []
     scopes = {}
     scope = 0
-
     reading = False
 
     for i, c in enumerate(text):
@@ -149,23 +178,20 @@ def get_blocks(text):
             scopes[str(scope)] = ''
             reading = True
         elif c == '}':
+            if scope == 0:
+                raise Exception("Extra closing brace detected")
             scope -= 1
             if scope == 0:
+                # Only collect blocks from completed root-level scopes
+                for value in scopes.values():
+                    new_value = strip_keywords(value)
+                    blocks.append(new_value)
+                scopes = {}
                 reading = False
-                if next_char is not None:
-                    for value in scopes.values():
-                        new_value = strip_keywords(value)
-                        blocks.append(new_value)
-
-                    scopes = {}
         else:
-            if reading:
+            if reading and scope > 0:
+                # Only accumulate text inside a block (scope > 0)
                 scopes[str(scope)] += c
-
-        if next_char is None:
-            for value in scopes.values():
-                new_value = strip_keywords(value)
-                blocks.append(new_value)
 
     if scope > 0:
         raise Exception("Forgot to close a scope")
